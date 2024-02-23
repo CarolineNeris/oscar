@@ -1,0 +1,12 @@
+@model MvcMovie.Models.Movie
+
+<form asp-action="AddStudioToMovie">
+    <div class="form-group">
+        <label for="StudioId">Selecione o Estúdio:</label>
+        <select asp-for="StudioId" asp-items="@ViewBag.Studios" class="form-control">
+            <option value="">Selecione...</option>
+        </select>
+    </div>
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-primary">Adicionar Estúdio</button>
+</form>
