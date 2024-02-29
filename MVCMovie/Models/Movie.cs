@@ -6,12 +6,12 @@ public class Movie
 {
     public int Id { get; set; }
     public string? Title { get; set; }
+
     [DataType(DataType.Date)]
     public DateTime ReleaseDate { get; set; }
     public string? Genre { get; set; }
     public decimal Price { get; set; }
-
-    public Studio? Studio {get; set;}
-    public int? StudioId {get; set;}
-    public ICollection<Artist>? Artists {get;set;}
+    public required int StudioId { get; set; }
+    public virtual Studio? Studio { get; set; }
+    public virtual ICollection<Artist>? Artists { get; set; }
 }

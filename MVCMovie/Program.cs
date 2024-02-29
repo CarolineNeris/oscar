@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MvcMovie.Data;
-using TechMed.Infrastructure.Auth;
+using MvcMovie.Data.Security;
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 if (builder.Environment.IsDevelopment())
 {
@@ -11,14 +13,12 @@ if (builder.Environment.IsDevelopment())
 }
 else
 {
-    //builder.Services.AddDbContext<MvcMovieContext>(options =>
-       // options.UseSqlServer(builder.Configuration.GetConnectionString("ProductionMvcMovieContext")));
+    //TODO: configurar MySql
 }
-
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddScoped<IAuthService, AuthService>();
+
 
 var app = builder.Build();
 
@@ -29,12 +29,10 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
+app.UseMiddleware<AutorizationMiddleware>();
 app.UseRouting();
-
 app.UseAuthorization();
 
 app.MapControllerRoute(

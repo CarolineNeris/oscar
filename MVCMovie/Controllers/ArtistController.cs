@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using MvcMovie.Data;
 using MvcMovie.Models;
 
-namespace MVCMovie.Controllers
+namespace MvcMovie.Controllers
 {
     public class ArtistController : Controller
     {
@@ -36,7 +36,7 @@ namespace MVCMovie.Controllers
             }
 
             var artist = await _context.Artist
-                .FirstOrDefaultAsync(m => m.ArtistId == id);
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (artist == null)
             {
                 return NotFound();
@@ -56,7 +56,7 @@ namespace MVCMovie.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ArtistId,Name,Bio,Site")] Artist artist)
+        public async Task<IActionResult> Create([Bind("Id,Name,Bio,Site")] Artist artist)
         {
             if (ModelState.IsValid)
             {
@@ -88,9 +88,9 @@ namespace MVCMovie.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ArtistId,Name,Bio,Site")] Artist artist)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Bio,Site")] Artist artist)
         {
-            if (id != artist.ArtistId)
+            if (id != artist.Id)
             {
                 return NotFound();
             }
@@ -104,7 +104,7 @@ namespace MVCMovie.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ArtistExists(artist.ArtistId))
+                    if (!ArtistExists(artist.Id))
                     {
                         return NotFound();
                     }
@@ -127,7 +127,7 @@ namespace MVCMovie.Controllers
             }
 
             var artist = await _context.Artist
-                .FirstOrDefaultAsync(m => m.ArtistId == id);
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (artist == null)
             {
                 return NotFound();
@@ -157,7 +157,7 @@ namespace MVCMovie.Controllers
 
         private bool ArtistExists(int id)
         {
-          return (_context.Artist?.Any(e => e.ArtistId == id)).GetValueOrDefault();
+          return (_context.Artist?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

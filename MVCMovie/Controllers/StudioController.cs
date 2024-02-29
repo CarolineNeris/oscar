@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using MvcMovie.Data;
 using MvcMovie.Models;
 
-namespace MVCMovie.Controllers
+namespace MvcMovie.Controllers
 {
     public class StudioController : Controller
     {
@@ -36,7 +36,7 @@ namespace MVCMovie.Controllers
             }
 
             var studio = await _context.Studio
-                .FirstOrDefaultAsync(m => m.StudioId == id);
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (studio == null)
             {
                 return NotFound();
@@ -56,7 +56,7 @@ namespace MVCMovie.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("StudioId,Nome,Pais")] Studio studio)
+        public async Task<IActionResult> Create([Bind("Id,Name,Country,Website")] Studio studio)
         {
             if (ModelState.IsValid)
             {
@@ -88,9 +88,9 @@ namespace MVCMovie.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("StudioId,Nome,Pais")] Studio studio)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Country,Website")] Studio studio)
         {
-            if (id != studio.StudioId)
+            if (id != studio.Id)
             {
                 return NotFound();
             }
@@ -104,7 +104,7 @@ namespace MVCMovie.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!StudioExists(studio.StudioId))
+                    if (!StudioExists(studio.Id))
                     {
                         return NotFound();
                     }
@@ -127,7 +127,7 @@ namespace MVCMovie.Controllers
             }
 
             var studio = await _context.Studio
-                .FirstOrDefaultAsync(m => m.StudioId == id);
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (studio == null)
             {
                 return NotFound();
@@ -157,7 +157,7 @@ namespace MVCMovie.Controllers
 
         private bool StudioExists(int id)
         {
-          return (_context.Studio?.Any(e => e.StudioId == id)).GetValueOrDefault();
+          return (_context.Studio?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

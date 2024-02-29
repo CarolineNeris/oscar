@@ -6,10 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MvcMovie.Data;
+using MvcMovie.Data.Security;
 using MvcMovie.Models;
-using TechMed.Infrastructure.Auth;
 
-namespace MVCMovie.Controllers
+namespace MvcMovie.Controllers
 {
     public class UsersController : Controller
     {
@@ -17,12 +17,9 @@ namespace MVCMovie.Controllers
 
         private readonly IAuthService _authService;
 
-
-
         public UsersController(MvcMovieContext context, IAuthService authService)
         {
             _context = context;
-
             _authService = authService;
         }
 
@@ -43,7 +40,7 @@ namespace MVCMovie.Controllers
             }
 
             var user = await _context.User
-                .FirstOrDefaultAsync(m => m.UserId == id);
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (user == null)
             {
                 return NotFound();
@@ -63,12 +60,11 @@ namespace MVCMovie.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("UserId,Nome,Email,PassWord")] User user)
+        public async Task<IActionResult> Create([Bind("Id,Username,Password,IsAdmin")] User user)
         {
             if (ModelState.IsValid)
             {
-                string NewPassWord = _authService.ComputeSha256Hash(user.PassWord);
-                user.PassWord = NewPassWord;
+                user.Password = Utils.HashPassword(user.Password);
                 _context.Add(user);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -97,9 +93,9 @@ namespace MVCMovie.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("UserId,Nome,Email,PassWord")] User user)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Username,Password,IsAdmin")] User user)
         {
-            if (id != user.UserId)
+            if (id != user.Id)
             {
                 return NotFound();
             }
@@ -113,7 +109,7 @@ namespace MVCMovie.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!UserExists(user.UserId))
+                    if (!UserExists(user.Id))
                     {
                         return NotFound();
                     }
@@ -136,7 +132,7 @@ namespace MVCMovie.Controllers
             }
 
             var user = await _context.User
-                .FirstOrDefaultAsync(m => m.UserId == id);
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (user == null)
             {
                 return NotFound();
@@ -166,7 +162,40 @@ namespace MVCMovie.Controllers
 
         private bool UserExists(int id)
         {
-          return (_context.User?.Any(e => e.UserId == id)).GetValueOrDefault();
+          return (_context.User?.Any(e => e.Id == id)).GetValueOrDefault();
         }
+                [HttpGet]
+        public ActionResult Login()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult Login(User model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = _context.User.SingleOrDefault(u => u.Username == model.Username);
+            if (user == null)
+            {
+                ModelState.AddModelError("", "Usuário não encontrado.");
+                return View(model);
+            }
+            model.Password = Utils.HashPassword(model.Password);
+            if (user.Password != model.Password)
+            {
+                ModelState.AddModelError("", "Senha incorreta.");
+                return View(model);
+            }
+            var token = _authService.GenerateJwtToken(user.Username, user.IsAdmin ? "Admin" : "User");
+            
+            Response.Cookies.Append("JwtToken", token, new CookieOptions { HttpOnly = true });
+
+            return RedirectToAction("Index", "Users");
+        }
+        
     }
 }
